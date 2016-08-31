@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,10 +20,15 @@ import android.widget.GridView;
 
 import com.android.renan.movies.popular.popularmovies.data.PopMoviesContract;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class GridFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int MOVIES_LOADER = 0;
     private GridCustomAdapter mMoviesAdapter;
+    private static final String LOG_TAG = GridFragment.class.getSimpleName();
+    private static final String BASE_POSTER_URL = "http://image.tmdb.org/t/p/w185/";
 
     private static String[] MOVIES_COLUMNS = {
             PopMoviesContract.MoviesInfoEntry._ID,
@@ -30,7 +36,9 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
             PopMoviesContract.MoviesInfoEntry.COLUMN_USER_RATING,
             PopMoviesContract.MoviesInfoEntry.COLUMN_PLOT_SYNOPSIS,
             PopMoviesContract.MoviesInfoEntry.COLUMN_RELEASE_DATE,
-            PopMoviesContract.MoviesInfoEntry.COLUMN_POSTER_IMAGE
+            PopMoviesContract.MoviesInfoEntry.COLUMN_POSTER_IMAGE,
+            PopMoviesContract.MoviesInfoEntry.COLUMN_MOVIE_ID,
+            PopMoviesContract.MoviesInfoEntry.COLUMN_POPULARITY
     };
 
     static final int COL_MOVIES_ID = 0;
@@ -39,6 +47,8 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     static final int COL_PLOT_SYNOPSIS = 3;
     static final int COL_RELEASE_DATE = 4;
     static final int COL_POSTER_IMAGE = 5;
+    static final int COL_MOVIE_ID = 6;
+    static final int COL_POPULARITY = 7;
 
     public static String[] eatFoodyImages = {
             "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg ",
@@ -67,32 +77,36 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mMoviesAdapter = new GridCustomAdapter(getActivity().getApplicationContext(), new String[0]);
+        mMoviesAdapter = new GridCustomAdapter(getActivity().getApplicationContext(), new ArrayList<String>());
 
         GridView gridView = (GridView) inflater.inflate(R.layout.fragment_grid, container, false);
         gridView.setAdapter(mMoviesAdapter);
 
             gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-
                 Intent intent = new Intent(getActivity(),DetailActivity.class);
                 startActivity(intent);
             }
         });
 
-
-        // TODO move to another place
         updateMovies();
-        //getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
 
         return gridView;
     }
 
-    private void updateMovies() {
-        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask(getActivity());
-        fetchMoviesTask.execute("top_rated"); // TODO get prefs
+    void onMoviesChanged( ) {
+        updateMovies();
+        getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
+
+        Log.v(LOG_TAG, "entrou onMoviesChanged");
     }
 
+    private void updateMovies() {
+        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask(getActivity());
+        fetchMoviesTask.execute(Utility.getPreferredSortOrder(getContext())); // TODO get prefs
+
+        Log.v(LOG_TAG, "entrou updateMovies");
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -107,16 +121,29 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
                 MOVIES_COLUMNS,
                 null,
                 null,
-                null);
+                Utility.getPreferredSortOrderDB(getContext()) + " LIMIT 20"); // TODO this LIMIT must be in the URI
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        
+        List<String> posters = new ArrayList<>();
+
+        if(data.moveToFirst()) {
+            do {
+                posters.add(BASE_POSTER_URL+data.getString(COL_POSTER_IMAGE));
+            } while(data.moveToNext());
+        }
+
+        mMoviesAdapter.clear();
+        mMoviesAdapter.addAll(posters);
+        mMoviesAdapter.notifyDataSetChanged();
+
+        Log.v(LOG_TAG, "entrou onLoadFinished");
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        Log.v(LOG_TAG, "entrou onLoaderReset");
+        mMoviesAdapter.clear();
     }
 }

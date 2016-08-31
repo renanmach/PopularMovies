@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.android.renan.movies.popular.popularmovies.data.PopMoviesContract.MoviesInfoEntry;
 
 public class PopMoviesDbHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     static final String DATABASE_NAME = "movies.db";
 
@@ -20,12 +20,14 @@ public class PopMoviesDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_MOVIES_INFORMATION_TABLE = "CREATE TABLE "
                 + MoviesInfoEntry.TABLE_NAME
                 + " ( "
-                + MoviesInfoEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + MoviesInfoEntry._ID + " INTEGER PRIMARY KEY, "
                 + MoviesInfoEntry.COLUMN_ORIGINAL_TITLE + " TEXT NOT NULL, "
                 + MoviesInfoEntry.COLUMN_PLOT_SYNOPSIS + " TEXT NOT NULL, "
                 + MoviesInfoEntry.COLUMN_POSTER_IMAGE + " TEXT NOT NULL, "
                 + MoviesInfoEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL,"
-                + MoviesInfoEntry.COLUMN_USER_RATING + " REAL NOT NULL "
+                + MoviesInfoEntry.COLUMN_USER_RATING + " REAL NOT NULL, "
+                + MoviesInfoEntry.COLUMN_POPULARITY + " REAL NOT NULL, "
+                + MoviesInfoEntry.COLUMN_MOVIE_ID + " INTEGER UNIQUE NOT NULL "
                 + " );";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIES_INFORMATION_TABLE);

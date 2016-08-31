@@ -32,12 +32,14 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Void> {
     private void getMoviesFromJson(String moviesJsonStr) {
         // TODO fetch more pages
 
+        final String TMDB_ID = "id";
         final String TMDB_RESULT_LIST = "results";
         final String TMDB_PLOT_SYNOPSYS = "overview";
         final String TMDB_ORIGINAL_TITLE = "original_title";
         final String TMDB_RELEASE_DATE = "release_date";
         final String TMDB_POSTER_PATH = "poster_path";
         final String TMDB_USER_RATING = "vote_average";
+        final String TMDB_POPULARITY = "popularity";
 
         try {
             JSONObject moviesJson = new JSONObject(moviesJsonStr);
@@ -51,21 +53,27 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Void> {
                 String releaseDate;
                 String posterPath;
                 double voteAverage;
+                double popularity;
+                int id;
 
                 JSONObject movieData = moviesArray.getJSONObject(i);
 
+                id = movieData.getInt(TMDB_ID);
                 overview = movieData.getString(TMDB_PLOT_SYNOPSYS);
                 originalTitle = movieData.getString(TMDB_ORIGINAL_TITLE);
                 releaseDate = movieData.getString(TMDB_RELEASE_DATE);
                 posterPath = movieData.getString(TMDB_POSTER_PATH);
                 voteAverage = movieData.getDouble(TMDB_USER_RATING);
+                popularity = movieData.getDouble(TMDB_POPULARITY);
 
                 ContentValues cv = new ContentValues();
+                cv.put(MoviesInfoEntry.COLUMN_MOVIE_ID, id);
                 cv.put(MoviesInfoEntry.COLUMN_POSTER_IMAGE, posterPath);
                 cv.put(MoviesInfoEntry.COLUMN_ORIGINAL_TITLE, originalTitle);
                 cv.put(MoviesInfoEntry.COLUMN_PLOT_SYNOPSIS, overview);
                 cv.put(MoviesInfoEntry.COLUMN_RELEASE_DATE, releaseDate);
                 cv.put(MoviesInfoEntry.COLUMN_USER_RATING, voteAverage);
+                cv.put(MoviesInfoEntry.COLUMN_POPULARITY, popularity);
                 cVVector.add(cv);
             }
 

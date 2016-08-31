@@ -9,13 +9,15 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 
 public class GridCustomAdapter extends ArrayAdapter {
     private Context mContext;
-    private String[] mImages;
+    private List<String> mImages;
     private LayoutInflater inflater;
 
-    public GridCustomAdapter(Context context, String[] images) {
+    public GridCustomAdapter(Context context, List<String> images) {
         super(context, R.layout.listview_item_image, images);
         mContext = context;
         mImages = images;
@@ -33,7 +35,7 @@ public class GridCustomAdapter extends ArrayAdapter {
         }
 
         Picasso.with(mContext)
-                .load(mImages[i])
+                .load(mImages.get(i))
                 .fit()
                 .into(imageView);
 

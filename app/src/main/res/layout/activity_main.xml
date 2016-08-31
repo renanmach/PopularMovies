@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_grid"
+    android:name="com.android.renan.movies.popular.popularmovies.GridFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.android.renan.movies.popular.popularmovies.MainActivity"
-    tools:ignore="MergeRootFrame"
-    android:id="@+id/container"/>
+    tools:context="com.android.renan.movies.popular.popularmovies.GridFragment" />
+
+
+
+    <!--<?xml version="1.0" encoding="utf-8"?>
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.android.renan.movies.popular.popularmovies.MainActivity"
+        tools:ignore="MergeRootFrame"
+        android:id="@+id/container"/>
+    -->
 
 <!-- tools:ignore="MergeRootFrame" ignores warnings of "MergeRootFrame"rule -->
+

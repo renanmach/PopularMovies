@@ -169,10 +169,10 @@ public class PopMoviesProvider extends ContentProvider {
         super.shutdown();
     }
 
-
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case MOVIES:
@@ -180,7 +180,7 @@ public class PopMoviesProvider extends ContentProvider {
                 int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
-                        long _id = db.insert(PopMoviesContract.MoviesInfoEntry.TABLE_NAME, null, value);
+                        long _id = db.insertWithOnConflict(PopMoviesContract.MoviesInfoEntry.TABLE_NAME, null, value, SQLiteDatabase.CONFLICT_IGNORE);
                         if (_id != -1) {
                             returnCount++;
                         }
