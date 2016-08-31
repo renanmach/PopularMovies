@@ -2,6 +2,7 @@ package com.android.renan.movies.popular.popularmovies.data;
 
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -42,5 +43,11 @@ public class PopMoviesContract  {
         public static final String COLUMN_PLOT_SYNOPSIS = "plot_synopsis";
         public static final String COLUMN_USER_RATING = "user_rating";
         public static final String COLUMN_RELEASE_DATE = "release_date";
+
+
+
+        public static Uri buildMovieUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
     }
 }

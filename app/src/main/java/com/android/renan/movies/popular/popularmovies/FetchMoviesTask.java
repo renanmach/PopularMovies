@@ -1,9 +1,12 @@
 package com.android.renan.movies.popular.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.android.renan.movies.popular.popularmovies.data.PopMoviesContract.MoviesInfoEntry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,6 +18,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Vector;
 
 public class FetchMoviesTask extends AsyncTask<String, Void, Void> {
     private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
@@ -39,6 +43,8 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Void> {
             JSONObject moviesJson = new JSONObject(moviesJsonStr);
             JSONArray moviesArray = moviesJson.getJSONArray(TMDB_RESULT_LIST);
 
+            Vector<ContentValues> cVVector = new Vector<ContentValues>(moviesArray.length());
+
             for(int i = 0 ; i < moviesArray.length(); i++) {
                 String overview;
                 String originalTitle;
@@ -54,12 +60,24 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Void> {
                 posterPath = movieData.getString(TMDB_POSTER_PATH);
                 voteAverage = movieData.getDouble(TMDB_USER_RATING);
 
-                Log.v(LOG_TAG, overview);
-                Log.v(LOG_TAG, originalTitle);
-                Log.v(LOG_TAG, releaseDate);
-                Log.v(LOG_TAG, posterPath);
-                Log.v(LOG_TAG, String.valueOf(voteAverage));
+                ContentValues cv = new ContentValues();
+                cv.put(MoviesInfoEntry.COLUMN_POSTER_IMAGE, posterPath);
+                cv.put(MoviesInfoEntry.COLUMN_ORIGINAL_TITLE, originalTitle);
+                cv.put(MoviesInfoEntry.COLUMN_PLOT_SYNOPSIS, overview);
+                cv.put(MoviesInfoEntry.COLUMN_RELEASE_DATE, releaseDate);
+                cv.put(MoviesInfoEntry.COLUMN_USER_RATING, voteAverage);
+                cVVector.add(cv);
             }
+
+            int inserted = 0;
+            // add to database
+            if ( cVVector.size() > 0 ) {
+                ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                cVVector.toArray(cvArray);
+                inserted = mContext.getContentResolver().bulkInsert(MoviesInfoEntry.CONTENT_URI, cvArray);
+            }
+
+            Log.d(LOG_TAG, "FetchWeatherTask Complete. " + inserted + " Inserted");
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
@@ -89,7 +107,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Void> {
             final String PAGE_PARAM = "page";
 
             Uri builtUri = Uri.parse(MOVIE_BASE_URL).buildUpon()
-                    .appendQueryParameter(API_KEY_PARAM, Utility.getApiKey())
+                    .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIES_API_KEY)
                     .appendQueryParameter(PAGE_PARAM, String.valueOf(1))
                     .build();
 
