@@ -49,6 +49,25 @@ public class Utility {
         Log.w(LOG_TAG, "Warning: sorting order -" + sortOrder +"- not found");
         return null;
     }
+
+
+    public static String formatUserRating(Context context, double userRating) {
+        return context.getString(R.string.format_user_rating, userRating);
+    }
+
+    public static String formatRuntime(Context context, int runtime) {
+        return context.getString(R.string.format_runtime, runtime);
+    }
+
+    // return the year from date string of type YYYY-MM-DD
+    public static String getYearFromDateStr(String dateStr) {
+        if(dateStr.length() > 4) {
+            return dateStr.substring(0, 4);
+        }
+        else
+            return dateStr;
+    }
+
 }
 
 

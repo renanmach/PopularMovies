@@ -1,6 +1,7 @@
 package com.android.renan.movies.popular.popularmovies;
 
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -98,6 +99,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mRuntime = (TextView) rootView.findViewById(R.id.detail_runtime);
         mUserRating = (TextView) rootView.findViewById(R.id.detail_user_rating);
         mFavoriteButton = (Button) rootView.findViewById(R.id.detail_favorite_button);
+        mFavoriteButton.setOnClickListener(mButtonClickListener);
         mSynopsis = (TextView) rootView.findViewById(R.id.detail_synopsis);
 
         return rootView;
@@ -127,15 +129,19 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             }
 
             mOriginalTitle.setText(data.getString(COL_ORIGINAL_TITLE));
-            mRelease.setText(data.getString(COL_RELEASE_DATE));
+            mRelease.setText(Utility.getYearFromDateStr(data.getString(COL_RELEASE_DATE)));
             mSynopsis.setText(data.getString(COL_PLOT_SYNOPSIS));
-            mUserRating.setText(String.valueOf(data.getDouble(COL_USER_RATING)));
-            mRuntime.setText(String.valueOf(data.getInt(COL_RUNTIME)));
+            mUserRating.setText(Utility.formatUserRating(getContext(), data.getDouble(COL_USER_RATING)));
+            mRuntime.setText(Utility.formatRuntime(getContext(), data.getInt(COL_RUNTIME)));
             Picasso.with(getContext())
                     .load(GridFragment.BASE_POSTER_URL+ data.getString(COL_POSTER_IMAGE))
                     .fit()
                     .into(mPoster);
         }
+    }
+
+    public void buttonOnClick(View v) {
+        mFavoriteButton.setText("Clicked!");
     }
 
     private void restartLoader() {
@@ -155,4 +161,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         FetchRunTimeTask fetchRunTimeTask = new FetchRunTimeTask(getActivity(), mMovieId, mHandler);
         fetchRunTimeTask.execute();
     }
+
+    private View.OnClickListener mButtonClickListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            mFavoriteButton.setText("REMOVE FROM FAVORITES");
+            mFavoriteButton.setBackgroundColor(Color.rgb(0xde,0x86,0x87));
+        }
+    };
 }

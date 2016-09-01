@@ -1,4 +1,5 @@
-<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
 
     <!-- Activities titles-->
     <string name="title_activity_detail">Movie Detail</string>
@@ -14,4 +15,10 @@
     <string name="pref_sort_top_rated">top_rated</string>
     <string name="pref_sort_popularity_label">Popularity</string>
     <string name="pref_sort_top_rated_label">Top Rated</string>
+
+
+
+    <!-- String formatting -->
+    <string name="format_user_rating"><xliff:g id="user_rating">%1.2f</xliff:g>\u221510</string>
+    <string name="format_runtime"><xliff:g id="runtime">%d</xliff:g>min</string>
 </resources>

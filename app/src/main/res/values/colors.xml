@@ -9,4 +9,5 @@
     <color name="grey2">#555555</color>
     <color name="black">#000000</color>
     <color name="green_button_detail">#86ded5</color>
+    <color name="red_button_detail">#de8687</color>
 </resources>
