@@ -50,5 +50,9 @@ public class PopMoviesContract  {
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
+
+        public static int getMovieIdFromUri(Uri uri) {;
+            return Integer.parseInt(uri.getPathSegments().get(1));
+        }
     }
 }

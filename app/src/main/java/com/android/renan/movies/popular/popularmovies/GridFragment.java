@@ -26,7 +26,11 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     private static final int MOVIES_LOADER = 0;
     private GridCustomAdapter mMoviesAdapter;
     private static final String LOG_TAG = GridFragment.class.getSimpleName();
-    private static final String BASE_POSTER_URL = "http://image.tmdb.org/t/p/w185/";
+    public static final String BASE_POSTER_URL = "http://image.tmdb.org/t/p/w185/";
+    private List<Integer> mMovieId;
+    public static final String MOVIE_ID_EXTRA =
+            "com.android.renan.movie.popular.popularmovies.MOVIE_ID";
+
 
     private static String[] MOVIES_COLUMNS = {
             PopMoviesContract.MoviesInfoEntry._ID,
@@ -71,6 +75,8 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
             gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 Intent intent = new Intent(getActivity(),DetailActivity.class);
+                if(mMovieId != null)
+                    intent.putExtra(MOVIE_ID_EXTRA, mMovieId.get(position));
                 startActivity(intent);
             }
         });
@@ -109,10 +115,12 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         List<String> posters = new ArrayList<>();
+        mMovieId = new ArrayList<>();
 
         if(data.moveToFirst()) {
             do {
                 posters.add(BASE_POSTER_URL+data.getString(COL_POSTER_IMAGE));
+                mMovieId.add(data.getInt(COL_MOVIE_ID));
             } while(data.moveToNext());
         }
 

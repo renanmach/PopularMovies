@@ -14,7 +14,14 @@ public class PopMoviesProvider extends ContentProvider {
     private PopMoviesDbHelper mOpenHelper;
 
     static final int MOVIES = 100;
-    static final int MOVIE_WITH_INFO = 101;
+    static final int MOVIE_DETAIL = 101;
+
+
+    //location.location_setting = ?
+    private static final String sMovieIdSelection =
+            PopMoviesContract.MoviesInfoEntry.TABLE_NAME+
+                    "." + PopMoviesContract.MoviesInfoEntry.COLUMN_MOVIE_ID + " = ? ";
+
 
     @Override
     public boolean onCreate() {
@@ -42,9 +49,9 @@ public class PopMoviesProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
-            case MOVIE_WITH_INFO:
+            case MOVIE_DETAIL:
                 retCursor = getMovieWithInfo(uri, projection, sortOrder);
-
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -52,9 +59,22 @@ public class PopMoviesProvider extends ContentProvider {
         return retCursor;
     }
 
-    // TODO implement this method
+    // queries the database and returns a cursor with information of the movie
     private Cursor getMovieWithInfo(Uri uri, String[] projection, String sortOrder) {
-        return null;
+        final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+        int id = PopMoviesContract.MoviesInfoEntry.getMovieIdFromUri(uri);
+        String selection = sMovieIdSelection;
+        String[] selectionArgs={String.valueOf(id)};
+
+         Cursor retCursor = db.query(
+                 PopMoviesContract.MoviesInfoEntry.TABLE_NAME,
+                 projection,
+                 selection,
+                 selectionArgs,
+                 null,
+                 null,
+                 null);
+        return retCursor;
     }
 
     @Override
@@ -64,7 +84,7 @@ public class PopMoviesProvider extends ContentProvider {
         switch (match) {
             case MOVIES:
                 return PopMoviesContract.MoviesInfoEntry.CONTENT_TYPE;
-            case MOVIE_WITH_INFO:
+            case MOVIE_DETAIL:
                 return PopMoviesContract.MoviesInfoEntry.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -137,6 +157,15 @@ public class PopMoviesProvider extends ContentProvider {
                         selection,
                         selectionArgs);
                 break;
+            case MOVIE_DETAIL: {
+                int id = PopMoviesContract.MoviesInfoEntry.getMovieIdFromUri(uri);
+                String[] sArgs={String.valueOf(id)};
+                rowsUpdated = db.update(PopMoviesContract.MoviesInfoEntry.TABLE_NAME,
+                        contentValues,
+                        sMovieIdSelection,
+                        sArgs);
+                break;
+            }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -157,7 +186,7 @@ public class PopMoviesProvider extends ContentProvider {
 
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, PopMoviesContract.PATH_MOVIES_INFO, MOVIES);
-        matcher.addURI(authority, PopMoviesContract.PATH_MOVIES_INFO +"/*", MOVIE_WITH_INFO);
+        matcher.addURI(authority, PopMoviesContract.PATH_MOVIES_INFO +"/#", MOVIE_DETAIL);
 
         return matcher;
     }
