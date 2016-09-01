@@ -4,12 +4,10 @@ package com.android.renan.movies.popular.popularmovies;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -50,27 +48,15 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     static final int COL_MOVIE_ID = 6;
     static final int COL_POPULARITY = 7;
 
-    public static String[] eatFoodyImages = {
-            "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg ",
-            "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg ",
-            "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg ",
-            "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg ",
-            "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg ",
-            "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg ",
-            "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg ",
-            "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg ",
-    };
-
-
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        //TODO inflater.inflate(R.menu.forecastfragment, menu);
+        inflater.inflate(R.menu.fragment_grid, menu);
     }
 
     @Override
@@ -97,15 +83,11 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     void onMoviesChanged( ) {
         updateMovies();
         getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
-
-        Log.v(LOG_TAG, "entrou onMoviesChanged");
     }
 
     private void updateMovies() {
         FetchMoviesTask fetchMoviesTask = new FetchMoviesTask(getActivity());
         fetchMoviesTask.execute(Utility.getPreferredSortOrder(getContext())); // TODO get prefs
-
-        Log.v(LOG_TAG, "entrou updateMovies");
     }
 
     @Override
@@ -137,13 +119,10 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         mMoviesAdapter.clear();
         mMoviesAdapter.addAll(posters);
         mMoviesAdapter.notifyDataSetChanged();
-
-        Log.v(LOG_TAG, "entrou onLoadFinished");
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        Log.v(LOG_TAG, "entrou onLoaderReset");
         mMoviesAdapter.clear();
     }
 }

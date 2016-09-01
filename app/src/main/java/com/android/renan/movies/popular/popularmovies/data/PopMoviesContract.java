@@ -45,6 +45,7 @@ public class PopMoviesContract  {
         public static final String COLUMN_RELEASE_DATE = "release_date";
         public static final String COLUMN_MOVIE_ID = "movie_id";    // id provided by themoviedb
         public static final String COLUMN_POPULARITY = "popularity";
+        public static final String COLUMN_RUNTIME = "runtime";
 
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);

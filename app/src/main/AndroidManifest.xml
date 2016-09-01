@@ -20,13 +20,26 @@
         <activity
             android:name=".DetailActivity"
             android:label="@string/title_activity_detail"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:parentActivityName="com.android.renan.movies.popular.popularmovies.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.android.renan.movies.popular.popularmovies.MainActivity" />
+        </activity>
 
         <provider
             android:name=".data.PopMoviesProvider"
             android:authorities="com.android.renan.movies.popular.popularmovies" />
 
-        <activity android:name=".SettingsActivity"></activity>
+        <activity
+            android:name="com.android.renan.movies.popular.popularmovies.SettingsActivity"
+            android:theme="@style/SettingsTheme"
+            android:label="@string/action_settings"
+            android:parentActivityName="com.android.renan.movies.popular.popularmovies.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.android.renan.movies.popular.popularmovies.MainActivity" />
+            >
+        </activity>
     </application>
 
 </manifest>

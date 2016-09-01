@@ -3,4 +3,10 @@
     <color name="colorPrimary">#222222</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="green_title_header">#009485</color>
+    <color name="white">#ffffff</color>
+    <color name="grey">#777777</color>
+    <color name="grey2">#555555</color>
+    <color name="black">#000000</color>
+    <color name="green_button_detail">#86ded5</color>
 </resources>
