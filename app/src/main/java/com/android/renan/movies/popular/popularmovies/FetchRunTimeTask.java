@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 
 import com.android.renan.movies.popular.popularmovies.data.PopMoviesContract.MoviesInfoEntry;
@@ -22,10 +23,12 @@ public class FetchRunTimeTask extends AsyncTask<Void, Void, Void> {
     private final String LOG_TAG = FetchRunTimeTask.class.getSimpleName();
     private final Context mContext;
     private final int mMovieId;
+    private Handler mHandler;
 
-    public FetchRunTimeTask(Context context, int movieId) {
+    public FetchRunTimeTask(Context context, int movieId, Handler handler) {
         mContext = context;
         mMovieId = movieId;
+        mHandler = handler;
     }
 
     private void getRuntimeFromJson(String moviesJsonStr) {
@@ -98,5 +101,11 @@ public class FetchRunTimeTask extends AsyncTask<Void, Void, Void> {
         }
 
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+        mHandler.sendEmptyMessage(0);
     }
 }

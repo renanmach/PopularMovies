@@ -1,13 +1,15 @@
 package com.android.renan.movies.popular.popularmovies;
 
-
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +32,8 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     private List<Integer> mMovieId;
     public static final String MOVIE_ID_EXTRA =
             "com.android.renan.movie.popular.popularmovies.MOVIE_ID";
+    private Handler mHandler;
+    private String mSortOrder;
 
 
     private static String[] MOVIES_COLUMNS = {
@@ -52,10 +56,27 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     static final int COL_MOVIE_ID = 6;
     static final int COL_POPULARITY = 7;
 
+    public GridFragment() {
+        mHandler = new Handler() {
+
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case 0:
+                        restartLoader();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        mSortOrder = Utility.getPreferredSortOrder(getContext());
     }
 
     @Override
@@ -81,19 +102,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
             }
         });
 
-        updateMovies();
-
         return gridView;
-    }
-
-    void onMoviesChanged( ) {
-        updateMovies();
-        getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
-    }
-
-    private void updateMovies() {
-        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask(getActivity());
-        fetchMoviesTask.execute(Utility.getPreferredSortOrder(getContext())); // TODO get prefs
     }
 
     @Override
@@ -117,20 +126,52 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         List<String> posters = new ArrayList<>();
         mMovieId = new ArrayList<>();
 
-        if(data.moveToFirst()) {
+        if(data != null && data.moveToFirst()) {
             do {
                 posters.add(BASE_POSTER_URL+data.getString(COL_POSTER_IMAGE));
                 mMovieId.add(data.getInt(COL_MOVIE_ID));
             } while(data.moveToNext());
+
+            mMoviesAdapter.clear();
+            mMoviesAdapter.addAll(posters);
+            mMoviesAdapter.notifyDataSetChanged();
         }
 
-        mMoviesAdapter.clear();
-        mMoviesAdapter.addAll(posters);
-        mMoviesAdapter.notifyDataSetChanged();
+        else {
+            fetchMovies();
+        }
+    }
+
+    private void fetchMovies() {
+        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask(getActivity(), mHandler);
+        fetchMoviesTask.execute(Utility.getPreferredSortOrder(getContext())); // TODO get prefs
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mMoviesAdapter.clear();
+    }
+
+    private void restartLoader() {
+        getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        String sortOrder = Utility.getPreferredSortOrder(getContext());
+
+        Log.v(LOG_TAG, sortOrder + " " + mSortOrder);
+
+        if(sortOrder != null && !sortOrder.equals(mSortOrder)) {
+            onMoviesChanged();
+            mSortOrder = sortOrder;
+        }
+    }
+
+    public void onMoviesChanged() {
+        fetchMovies();
+        restartLoader();
     }
 }

@@ -3,6 +3,8 @@ package com.android.renan.movies.popular.popularmovies;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -19,10 +21,11 @@ import com.android.renan.movies.popular.popularmovies.data.PopMoviesContract.Mov
 import com.squareup.picasso.Picasso;
 
 
-public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     static final String DETAIL_URI = "URI";
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
     private int mMovieId;
+    private Handler mHandler;
 
     // detail loader id
     private static final int DETAIL_LOADER = 0;
@@ -35,7 +38,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     TextView mUserRating;
     Button mFavoriteButton;
     TextView mSynopsis;
-
 
     private static final String[] DETAIL_COLUMNS = {
             MoviesInfoEntry.COLUMN_RUNTIME,
@@ -57,14 +59,26 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public static final int COL_POSTER_IMAGE = 6;
     public static final int COL_RELEASE_DATE = 7;
 
+    public DetailFragment() {
+        mHandler = new Handler() {
+
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case 0:
+                        restartLoader();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mMovieId = getActivity().getIntent().getIntExtra(GridFragment.MOVIE_ID_EXTRA, -1);
-
-        // TODO move somewhere else
-        getRuntime();
-        //setHasOptionsMenu(true);
     }
 
     @Override
@@ -106,6 +120,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (data != null && data.moveToFirst()) {
+            // only update the views after the runtime is fetched
+            if(data.getInt(COL_RUNTIME) == -1) {
+                onRuntimeNotFound();
+                return;
+            }
+
             mOriginalTitle.setText(data.getString(COL_ORIGINAL_TITLE));
             mRelease.setText(data.getString(COL_RELEASE_DATE));
             mSynopsis.setText(data.getString(COL_PLOT_SYNOPSIS));
@@ -118,13 +138,21 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         }
     }
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
+    private void restartLoader() {
+        getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
     }
 
+    private void onRuntimeNotFound() {
+        getRuntime();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+    }
+
+    // get the movie runtime from the moviedb api
     private void getRuntime() {
-        FetchRunTimeTask fetchRunTimeTask = new FetchRunTimeTask(getActivity(), mMovieId);
+        FetchRunTimeTask fetchRunTimeTask = new FetchRunTimeTask(getActivity(), mMovieId, mHandler);
         fetchRunTimeTask.execute();
     }
 }

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 
 import com.android.renan.movies.popular.popularmovies.data.PopMoviesContract.MoviesInfoEntry;
@@ -23,12 +24,12 @@ import java.util.Vector;
 public class FetchMoviesTask extends AsyncTask<String, Void, Void> {
     private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
     private final Context mContext;
+    private Handler mHandler;
 
-    public FetchMoviesTask(Context context) {
+    public FetchMoviesTask(Context context, Handler handler) {
         mContext = context;
+        mHandler = handler;
     }
-
-
 
     private void getPostersFromJson(String moviesJsonStr) {
         // TODO fetch more pages
@@ -227,5 +228,11 @@ public class FetchMoviesTask extends AsyncTask<String, Void, Void> {
         }
 
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+        mHandler.sendEmptyMessage(0); // notifies end of execution
     }
 }
